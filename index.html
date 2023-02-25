@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Your Grade</title>
+</head>
+<body>
+    <h1>Check Your Grade</h1>
+    <form onsubmit="return checkGrade()">
+        <label for="student_id">Enter your student ID:</label>
+        <input type="text" id="student_id" name="student_id">
+        <button type="submit">Check Grade</button>
+    </form>
+    <p id="grade"></p>
+    <script>
+        function checkGrade() {
+            // Get the student ID from the form input
+            var student_id = document.getElementById("student_id").value;
+
+            // Read the grades file using AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Parse the CSV data
+                        var lines = xhr.responseText.split('\n');
+                        var grade = '';
+                        for (var i = 1; i < lines.length; i++) {
+                            var columns = lines[i].split(',');
+                            if (columns[0] === student_id) {
+                                grade = columns[1];
+                                break;
+                            }
+                        }
+
+                        // Display the grade on the webpage
+                        var gradeElement = document.getElementById("grade");
+                        if (grade === '') {
+                            gradeElement.innerHTML = "Could not find your grade";
+                        } else {
+                            gradeElement.innerHTML = "Your grade is: " + grade;
+                        }
+                    } else {
+                        // Handle AJAX error
+                        alert("Failed to read grades file");
+                    }
+                }
+            };
+            xhr.open('GET', 'grades.csv', true);
+            xhr.send(null);
+
+            // Prevent the form from submitting
+            return false;
+        }
+    </script>
+</body>
+</html>
